@@ -1,11 +1,11 @@
 import React from 'react'
 
-export default function EmptyCart() {
+export default function EmptyCart({ message }) {
     return (
         <div className="container mt-5">
             <div className="row">
                 <div className="col-10 mx-auto text-center text-title">
-                    <h1>Your card is currently empty</h1>
+                    <h1>{message}</h1>
                 </div>
             </div>
         </div>

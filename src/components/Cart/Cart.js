@@ -12,18 +12,18 @@ class Cart extends Component {
             <section>
                 <ProductConsumer>
                     {(value) => {
-                        const {cart} = value;
-                        if(cart.length > 0){
-                           return (
+                        const { cart } = value;
+                        if (cart.length > 0) {
+                            return (
                                 <React.Fragment>
-                                    <Title name="Your" title="Cart"/>
-                                    <CartColumns/>
-                                    <CartList value={value}/>
-                                    <CartTotals value={value} history={this.props.history}/>
+                                    <Title name="Your" title="Cart" />
+                                    <CartColumns />
+                                    <CartList value={value} />
+                                    <CartTotals value={value} history={this.props.history} />
                                 </React.Fragment>
                             )
-                        }else{
-                           return <EmptyCart/>
+                        } else {
+                            return <EmptyCart message="No Items Found." />
                         }
                     }}
                 </ProductConsumer>

@@ -1,28 +1,30 @@
-import React, {Component} from 'react';
-import {storeProducts,detailProduct} from './data';
+import React, { Component } from 'react';
+import { storeProducts, detailProduct } from './data';
 const ProductContext = React.createContext();
 
-class ProductProvider extends Component{
-    state={
-        products:[],
-        detailProduct:detailProduct,
-        cart:[],
-        modalOpen:false,
-        modalProduct:detailProduct,
-        cartSubTotal:0,
-        cartTax:0,
-        cartTotal:0
+class ProductProvider extends Component {
+    state = {
+        products: [],
+        detailProduct: detailProduct,
+        cart: [],
+        modalOpen: false,
+        modalProduct: detailProduct,
+        cartSubTotal: 0,
+        cartTax: 0,
+        cartTotal: 0,
+        myOrders: [],
+        tempMyOrders: []
     }
 
-    getItem = (id) =>{
+    getItem = (id) => {
         const product = this.state.products.find(item => item.id == id);
         return product;
     }
 
-    handleDetail = (id) =>{
+    handleDetail = (id) => {
         const product = this.getItem(id);
         this.setState(() => {
-            return {detailProduct:product};
+            return { detailProduct: product };
         });
     }
     addToCart = (id) => {
@@ -34,8 +36,8 @@ class ProductProvider extends Component{
         product.total = price;
         product.count = 1;
         this.setState(() => {
-            return {products:tempProducts,cart:[...this.state.cart,product]}
-        },()=>{
+            return { products: tempProducts, cart: [...this.state.cart, product], tempMyOrders: [...this.state.tempMyOrders, product] }
+        }, () => {
             this.addTotals();
         })
     }
@@ -43,13 +45,13 @@ class ProductProvider extends Component{
     openModal = (id) => {
         const product = this.getItem(id);
         this.setState(() => {
-            return {modalProduct:product,modalOpen:true};
+            return { modalProduct: product, modalOpen: true };
         });
     }
 
     closeModal = () => {
         this.setState(() => {
-            return {modalOpen:false};
+            return { modalOpen: false };
         });
     }
 
@@ -60,9 +62,9 @@ class ProductProvider extends Component{
         product.count++;
         product.total = product.count * product.price;
 
-        this.setState(()=>{
-            return {cart:[...tempCart]}
-        },()=>{
+        this.setState(() => {
+            return { cart: [...tempCart] }
+        }, () => {
             this.addTotals();
         });
     }
@@ -72,14 +74,14 @@ class ProductProvider extends Component{
         const index = tempCart.indexOf(this.getItem(id));
         const product = tempCart[index];
         product.count--;
-        if(product.count === 0){
+        if (product.count === 0) {
             console.log(product.count)
             this.removeItem(id);
-        }else{
+        } else {
             product.total = product.count * product.price;
-            this.setState(()=>{
-                return {cart:[...tempCart]}
-            },()=>{
+            this.setState(() => {
+                return { cart: [...tempCart] }
+            }, () => {
                 this.addTotals();
             });
         }
@@ -89,23 +91,23 @@ class ProductProvider extends Component{
         let tempProducts = [...this.state.products];
         let tempCart = [...this.state.cart];
         const index = tempCart.indexOf(this.getItem(id));
-        tempCart.splice(index,1);
+        tempCart.splice(index, 1);
         const productIndex = tempProducts.indexOf(this.getItem(id));
         const product = tempProducts[productIndex];
         product.inCart = false;
         product.count = 0;
         product.total = 0;
         this.setState(() => {
-            return {cart:[...tempCart],product:[...tempProducts]};
-        },()=>{
+            return { cart: [...tempCart], product: [...tempProducts] };
+        }, () => {
             this.addTotals();
         });
     }
 
-    clearCart = () => { 
-        this.setState(()=>{
-            return {cart:[]}
-        },()=>{
+    clearCart = () => {
+        this.setState(() => {
+            return { cart: [] }
+        }, () => {
             this.storeProducts();
             this.addTotals();
         });
@@ -119,47 +121,54 @@ class ProductProvider extends Component{
         const total = subTotal + tax;
         this.setState(() => {
             return {
-                cartSubTotal:subTotal,
-                cartTax:tax,
-                cartTotal:total
+                cartSubTotal: subTotal,
+                cartTax: tax,
+                cartTotal: total
             }
         })
+    }
+
+    addToMyProducts = () => {
+        this.setState(() => {
+            return { myOrders: [...this.state.tempMyOrders] };
+        });
     }
 
     storeProducts = () => {
         let tempProducts = [];
         storeProducts.forEach(item => {
-            const singleItem = {...item};
-            tempProducts = [...tempProducts,singleItem];
+            const singleItem = { ...item };
+            tempProducts = [...tempProducts, singleItem];
         });
-        this.setState(()=>{
-            return {products:tempProducts}
+        this.setState(() => {
+            return { products: tempProducts }
         });
     }
 
-    render(){
-        return(
-            <ProductContext.Provider value={{ 
-                    ...this.state,
-                    handleDetail:this.handleDetail,
-                    addToCart:this.addToCart,
-                    openModal:this.openModal,
-                    closeModal:this.closeModal,
-                    increment:this.increment,
-                    decrement:this.decrement,
-                    removeItem:this.removeItem,
-                    clearCart:this.clearCart
-                }}>
+    render() {
+        return (
+            <ProductContext.Provider value={{
+                ...this.state,
+                handleDetail: this.handleDetail,
+                addToCart: this.addToCart,
+                openModal: this.openModal,
+                closeModal: this.closeModal,
+                increment: this.increment,
+                decrement: this.decrement,
+                removeItem: this.removeItem,
+                clearCart: this.clearCart,
+                addToMyProducts: this.addToMyProducts,
+            }}>
                 {this.props.children}
             </ProductContext.Provider>
         )
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.storeProducts();
     }
 }
 
 const ProductConsumer = ProductContext.Consumer;
 
-export {ProductProvider,ProductConsumer}
+export { ProductProvider, ProductConsumer }
